@@ -1,6 +1,19 @@
 import lstm
 import time
+import json
+import numpy
 import matplotlib.pyplot as plt
+
+class MyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(MyEncoder, self).default(obj)
 
 def plot_results(predicted_data, true_data):
     fig = plt.figure(facecolor='white')
@@ -20,6 +33,10 @@ def plot_results_multiple(predicted_data, true_data, prediction_len):
         plt.plot(padding + data, label='Prediction')
         plt.legend()
     plt.show()
+
+def write_json_doc(filename, data):
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, cls=MyEncoder)
 
 #Main Run Thread
 if __name__=='__main__':
@@ -42,8 +59,9 @@ if __name__=='__main__':
             nb_epoch=epochs,
             validation_split=0.05)
 
-    predictions = lstm.predict_sequences_multiple(model, X_test, seq_len, 50)
-    #predicted = lstm.predict_sequence_full(model, X_test, seq_len)
-    #predicted = lstm.predict_point_by_point(model, X_test)        
+    predictions = lstm.predict_point_by_point(model, X_test)
 
-    print('Training duration (s) : ', time.time() - global_start_time)
+    for i, prediction in enumerate(predictions):
+        write_json_doc(
+                "predictions/{}.json".format(i),
+                { 'input': X_test[i], 'output': prediction })
