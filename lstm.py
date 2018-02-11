@@ -18,7 +18,7 @@ def load_data(filename, seq_len, normalise_window):
     result = []
     for index in range(len(data) - sequence_length):
         result.append(data[index: index + sequence_length])
-    
+
     if normalise_window:
         result = normalise_windows(result)
 

@@ -1,3 +1,8 @@
 lstm.pyc
 venv/
 __pycache__/
+
+# exclude predictions
+predictions/*
+# but keep predictions folder
+!predictions/.gitkeep
